@@ -1,8 +1,10 @@
 var playBoard = document.getElementById("playBoard");
 var context = playBoard.getContext("2d");
+var radius = 20, OstX, OstY, EstX, EstY;
+var isMove = false, MlastX, MlastY;
 var block = new Array(), bx = 0;
 
-function hexagon(nowx, nowy, addx, addy, radius) {
+function hexagon(nowx, nowy, addx, addy) {
         let angle = Math.PI/3;
         context.beginPath();
         for(let nowAngle=0; nowAngle<Math.PI*2; nowAngle+=angle) {
@@ -15,12 +17,42 @@ function hexagon(nowx, nowy, addx, addy, radius) {
         context.closePath();
 }
 
-window.onload = function (){
-    var radius = 20;
-
-    for(let i=0;i<12;i++)
-    {
-        for(let j=0;j<13;j++){hexagon(j, i, radius, radius*0.875, radius);}
-        for(let j=0;j<13;j++){hexagon(j, i, radius*5/2, radius*1.75, radius);}
+function drawMap() {
+    for(let i=0; i<800/radius/3; i++) {
+        for(let j=0; j<450/radius/1.75; j++) {
+            hexagon(i, j, OstX, OstY);
+            hexagon(i, j, EstX, EstY);
+        }
     }
+}
+
+playBoard.onmouseup = function(e) {
+    isMove = false;
+}
+
+playBoard.onmousedown = function(e) {
+    MlastX = e.offsetX;
+    MlastY = e.offsetY;
+    isMove = true;
+}
+
+playBoard.onmousemove = function(e) {
+    if(!isMove)return;
+
+    var MdifX = e.offsetX-MlastX, MdifY = e.offsetY-MlastY;
+
+    OstX += MdifX; EstX += MdifX;
+    if(OstX<EstX){if(OstX>radius*0.5)EstX=OstX-(radius*1.5);if(OstX<radius*0.5)OstX=OstX+(radius*3);}
+    if(EstX<OstX){if(EstX>radius*0.5)OstX=EstX-(radius*1.5);if(EstX<radius*0.5)EstX=EstX+(radius*3);}
+    context.clearRect(0, 0, 800, 450);
+    drawMap();
+
+    MlastX = e.offsetX, MlastY = e.offsetY;
+}
+
+window.onload = function (){
+    OstX = radius; OstY = radius*0.875;
+    EstX = radius*2.5; EstY = radius*1.75;
+
+    drawMap();
 }
