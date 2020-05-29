@@ -28,7 +28,7 @@ function drawMap() {
     }
 }
 
-function leftMove(moveBlock, size) {
+function cutMove(moveBlock, size) {
     let temp=moveBlock.array[0];
     for(let i=1;i<=size;i++)moveBlock.array[i-1]=moveBlock.array[i];
     moveBlock.array[size]=temp;
@@ -39,7 +39,7 @@ function leftMove(moveBlock, size) {
     return moveBlock;
 }
 
-function rightMove(moveBlock, size) {
+function addMove(moveBlock, size) {
     let temp=moveBlock.array[size];
     for(let i=size;i>0;i--)moveBlock.array[i]=moveBlock.array[i-1];
     moveBlock.array[0]=temp;
@@ -48,6 +48,12 @@ function rightMove(moveBlock, size) {
     moveBlock.down==0?moveBlock.down=size:moveBlock.down--;
 
     return moveBlock;
+}
+
+function checkBlock(moveBlockarray) {
+    console.log(moveBlockarray);
+    for(let i=0;i<moveBlockarray.size;i++)if(moveBlockarray[i]>moveBlockarray[i+1])return false;
+    else return true;
 }
 
 playBoard.onmousedown = function(e) {
@@ -67,22 +73,30 @@ playBoard.onmousemove = function(e) {
 
     OstX += MdifX; EstX += MdifX;
     if(OstX<EstX) {
-        if(OstX>radius*0.5){EstX=OstX-(radius*1.5);EarBlock.X=rightMove(EarBlock.X, numX);}
-        if(OstX<radius*0.5){OstX=OstX+(radius*3);OarBlock.X=leftMove(OarBlock.X, numX);}
+        if(OstX>radius*0.5){EstX=OstX-(radius*1.5);EarBlock.X=addMove(EarBlock.X, numX);}
+        if(OstX<radius*0.5){OstX=OstX+(radius*3);OarBlock.X=cutMove(OarBlock.X, numX);}
     }
     if(EstX<OstX) {
-        if(EstX>radius*0.5){OstX=EstX-(radius*1.5);OarBlock.X=rightMove(OarBlock.X, numX);}
-        if(EstX<radius*0.5){EstX=EstX+(radius*3);EarBlock.X=leftMove(EarBlock.X, numX);}
+        if(EstX>radius*0.5){OstX=EstX-(radius*1.5);OarBlock.X=addMove(OarBlock.X, numX);}
+        if(EstX<radius*0.5){EstX=EstX+(radius*3);EarBlock.X=cutMove(EarBlock.X, numX);}
     }
 
-
-    /*OstY += MdifY; EstY += MdifY;
+    OstY += MdifY; EstY += MdifY;
     if(OstY<EstY) {
-
+        if(OstY>radius*0.875/3){EstY=OstY-(radius*0.875);EarBlock.Y=addMove(EarBlock.Y, numY);}
+        if(OstY<radius*0.875/3){OstY=OstY+(radius*1.75);OarBlock.Y=cutMove(OarBlock.Y, numY);}
     }
     if(EstY<OstY) {
-
-    }*/
+        if(EstY>radius*0.875/3){OstY=EstY-(radius*0.875);OarBlock.Y=addMove(OarBlock.Y, numY);}
+        if(EstY<radius*0.875/3){EstY=EstY+(radius*1.75);EarBlock.Y=cutMove(EarBlock.Y, numY);}
+    }
+    /*if(MdifY<0 && !checkBlock(OarBlock.Y.array, numY)) {
+        OstY=radius*0.875;EstY=radius*1.75;console.log("O");
+        while(OarBlock.Y.top!=0)OarBlock.Y=cutMove(OarBlock.Y, numY);while(EarBlock.Y.top!=0)EarBlock.Y=cutMove(EarBlock.Y, numY);}
+    if(MdifY>0 && !checkBlock(EarBlock.Y.array, numY)) {
+        EstY=450-(radius*1.75*(EarBlock.Y.down-EarBlock.Y.top));OstY=EstY-(radius*0.875);console.log("E");
+        while(OarBlock.Y.down!=numY)OarBlock.Y=addMove(OarBlock.Y, numY);while(EarBlock.Y.down!=numY)EarBlock.Y=addMove(EarBlock.Y, numY);}
+    console.log(OarBlock.Y, EarBlock.Y);*/
 
     context.clearRect(0, 0, 800, 450);
     drawMap();
