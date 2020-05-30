@@ -1,6 +1,6 @@
 var playBoard = document.getElementById("playBoard");
 var context = playBoard.getContext("2d");
-var radius = 20, OstX, OstY, EstX, EstY;
+var radius = 20, scrH = 450, scrW = 800, OstX, OstY, EstX, EstY;
 var isMove = false, MlastX, MlastY;
 var numX = Math.floor(800/radius/3), numY = Math.floor(450/radius/1.75);
 var OarBlock = {X:{top:0,down:numX,array:new Array()}, Y:{top:0,down:numY,array:new Array()}};
@@ -20,8 +20,8 @@ function hexagon(nowx, nowy, addx, addy) {
 }
 
 function drawMap() {
-    for(let i=0; i<800/radius/3; i++) {
-        for(let j=0; j<450/radius/1.75; j++) {
+    for(let i=0; i<scrW/radius/3; i++) {
+        for(let j=0; j<scrH/radius/1.75; j++) {
             hexagon(i, j, OstX, OstY);
             hexagon(i, j, EstX, EstY);
         }
@@ -50,10 +50,27 @@ function addMove(moveBlock, size) {
     return moveBlock;
 }
 
-function checkBlock(moveBlockarray) {
-    console.log(moveBlockarray);
-    for(let i=0;i<moveBlockarray.size;i++)if(moveBlockarray[i]>moveBlockarray[i+1])return false;
-    else return true;
+function mapMove(MdifX, MdifY) {
+    OstX += MdifX; EstX += MdifX;
+    if(OstX<EstX) {
+        if(OstX>radius*0.5){EstX=OstX-(radius*1.5);EarBlock.X=addMove(EarBlock.X, numX);}
+        if(OstX<radius*0.5){OstX=OstX+(radius*3);OarBlock.X=cutMove(OarBlock.X, numX);}
+    }
+    if(EstX<OstX) {
+        if(EstX>radius*0.5){OstX=EstX-(radius*1.5);OarBlock.X=addMove(OarBlock.X, numX);}
+        if(EstX<radius*0.5){EstX=EstX+(radius*3);EarBlock.X=cutMove(EarBlock.X, numX);}
+    }
+
+    OstY += MdifY; EstY += MdifY;
+    if((OarBlock.Y.top==0 && OstY>radius*0.875) || (EarBlock.Y.down==numY && EstY<radius*0.875)){OstY-=MdifY;EstY-=MdifY;return;}
+    if(OstY<EstY) {
+        if(OstY>radius*0.875/3){EstY=OstY-(radius*0.875);EarBlock.Y=addMove(EarBlock.Y, numY);}
+        if(OstY<radius*0.875/3){OstY=OstY+(radius*1.75);OarBlock.Y=cutMove(OarBlock.Y, numY);}
+    }
+    if(EstY<OstY) {
+        if(EstY>radius*0.875/3){OstY=EstY-(radius*0.875);OarBlock.Y=addMove(OarBlock.Y, numY);}
+        if(EstY<radius*0.875/3){EstY=EstY+(radius*1.75);EarBlock.Y=cutMove(EarBlock.Y, numY);}
+    }
 }
 
 playBoard.onmousedown = function(e) {
@@ -69,36 +86,8 @@ playBoard.onmouseup = function(e) {
 playBoard.onmousemove = function(e) {
     if(!isMove)return;
 
-    var MdifX = e.offsetX-MlastX, MdifY = e.offsetY-MlastY;
-
-    OstX += MdifX; EstX += MdifX;
-    if(OstX<EstX) {
-        if(OstX>radius*0.5){EstX=OstX-(radius*1.5);EarBlock.X=addMove(EarBlock.X, numX);}
-        if(OstX<radius*0.5){OstX=OstX+(radius*3);OarBlock.X=cutMove(OarBlock.X, numX);}
-    }
-    if(EstX<OstX) {
-        if(EstX>radius*0.5){OstX=EstX-(radius*1.5);OarBlock.X=addMove(OarBlock.X, numX);}
-        if(EstX<radius*0.5){EstX=EstX+(radius*3);EarBlock.X=cutMove(EarBlock.X, numX);}
-    }
-
-    OstY += MdifY; EstY += MdifY;
-    if(OstY<EstY) {
-        if(OstY>radius*0.875/3){EstY=OstY-(radius*0.875);EarBlock.Y=addMove(EarBlock.Y, numY);}
-        if(OstY<radius*0.875/3){OstY=OstY+(radius*1.75);OarBlock.Y=cutMove(OarBlock.Y, numY);}
-    }
-    if(EstY<OstY) {
-        if(EstY>radius*0.875/3){OstY=EstY-(radius*0.875);OarBlock.Y=addMove(OarBlock.Y, numY);}
-        if(EstY<radius*0.875/3){EstY=EstY+(radius*1.75);EarBlock.Y=cutMove(EarBlock.Y, numY);}
-    }
-    /*if(MdifY<0 && !checkBlock(OarBlock.Y.array, numY)) {
-        OstY=radius*0.875;EstY=radius*1.75;console.log("O");
-        while(OarBlock.Y.top!=0)OarBlock.Y=cutMove(OarBlock.Y, numY);while(EarBlock.Y.top!=0)EarBlock.Y=cutMove(EarBlock.Y, numY);}
-    if(MdifY>0 && !checkBlock(EarBlock.Y.array, numY)) {
-        EstY=450-(radius*1.75*(EarBlock.Y.down-EarBlock.Y.top));OstY=EstY-(radius*0.875);console.log("E");
-        while(OarBlock.Y.down!=numY)OarBlock.Y=addMove(OarBlock.Y, numY);while(EarBlock.Y.down!=numY)EarBlock.Y=addMove(EarBlock.Y, numY);}
-    console.log(OarBlock.Y, EarBlock.Y);*/
-
-    context.clearRect(0, 0, 800, 450);
+    mapMove(e.offsetX-MlastX, e.offsetY-MlastY);
+    context.clearRect(0, 0, scrW, scrH);
     drawMap();
 
     MlastX = e.offsetX, MlastY = e.offsetY;
