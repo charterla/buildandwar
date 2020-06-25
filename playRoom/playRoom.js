@@ -1,10 +1,10 @@
 var playBoard = document.getElementById("playBoard");
 var context = playBoard.getContext("2d");
-var radius = 20, scrH = 450, scrW = 800, OstX, OstY, EstX, EstY;
+var radius = 15, scrH = 450, scrW = 900, OstX, OstY, EstX, EstY;
 var isMove = false, MlastX, MlastY;
-var numX = Math.floor(800/radius/3), numY = Math.floor(450/radius/1.75);
+var numX = Math.floor(scrW/radius/3), numY = Math.floor(scrH/radius/1.75);
 var OarBlock = {X:{top:0,down:numX,array:new Array()}, Y:{top:0,down:numY,array:new Array()}};
-var EarBlock = {X:{top:0,down:numX,array:new Array()}, Y:{top:0,down:numY,array:new Array()}};
+var EarBlock = {X:{top:0,down:numX,array:new Array()}, Y:{top:0,down:Math.floor((scrH-radius*0.875)/radius/1.75),array:new Array()}};
 
 function hexagon(nowx, nowy, addx, addy) {
         let angle = Math.PI/3;
@@ -50,7 +50,7 @@ function addMove(moveBlock, size) {
     return moveBlock;
 }
 
-function mapMove(MdifX, MdifY) {
+function moveMap(MdifX, MdifY) {
     OstX += MdifX; EstX += MdifX;
     if(OstX<EstX) {
         if(OstX>radius*0.5){EstX=OstX-(radius*1.5);EarBlock.X=addMove(EarBlock.X, numX);}
@@ -62,7 +62,7 @@ function mapMove(MdifX, MdifY) {
     }
 
     OstY += MdifY; EstY += MdifY;
-    if((OarBlock.Y.top==0 && OstY>radius*0.875) || (EarBlock.Y.down==numY && EstY<radius*0.875)){OstY-=MdifY;EstY-=MdifY;return;}
+    if((OarBlock.Y.top==0 && OstY>radius*0.875) || (EarBlock.Y.down==numY && EstY<scrH-(radius*1.75*(EarBlock.Y.down-EarBlock.Y.top+0.5)))){OstY-=MdifY;EstY-=MdifY;return;}
     if(OstY<EstY) {
         if(OstY>radius*0.875/3){EstY=OstY-(radius*0.875);EarBlock.Y=addMove(EarBlock.Y, numY);}
         if(OstY<radius*0.875/3){OstY=OstY+(radius*1.75);OarBlock.Y=cutMove(OarBlock.Y, numY);}
@@ -86,7 +86,7 @@ playBoard.onmouseup = function(e) {
 playBoard.onmousemove = function(e) {
     if(!isMove)return;
 
-    mapMove(e.offsetX-MlastX, e.offsetY-MlastY);
+    moveMap(e.offsetX-MlastX, e.offsetY-MlastY);
     context.clearRect(0, 0, scrW, scrH);
     drawMap();
 
@@ -94,6 +94,9 @@ playBoard.onmousemove = function(e) {
 }
 
 window.onload = function (){
+    document.getElementById("playBoard").setAttribute("width",scrW);
+    document.getElementById("playBoard").setAttribute("height",scrH);
+
     OstX = radius; OstY = radius*0.875;
     EstX = radius*2.5; EstY = radius*1.75;
     drawMap();
